@@ -3,12 +3,17 @@
 
 // init project
 require("dotenv").config();
-var express = require("express");
-var app = express();
+const express = require("express");
+const app = express();
+const os = require("os");
+const ifaces = os.networkInterfaces();
+
+const ipAddress = ifaces["Wi-Fi"].filter((item) => item.family === "IPv4")[0]
+  .address;
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC
-var cors = require("cors");
+const cors = require("cors");
 app.use(cors({ optionsSuccessStatus: 200 })); // some legacy browsers choke on 204
 
 // http://expressjs.com/en/starter/static-files.html
@@ -24,7 +29,16 @@ app.get("/api/hello", function (req, res) {
   res.json({ greeting: "hello API" });
 });
 
+app.get("/api/whoami", function (req, res) {
+  let me = {};
+  me["ipaddress"] = ipAddress;
+  me["language"] = req.headers["accept-language"];
+  me["software"] = req.headers["user-agent"];
+
+  res.send(me);
+});
+
 // listen for requests :)
-var listener = app.listen(process.env.PORT || 3000, function () {
+const listener = app.listen(process.env.PORT || 3000, function () {
   console.log("Your app is listening on port " + listener.address().port);
 });
