@@ -5,11 +5,6 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-const os = require("os");
-const ifaces = os.networkInterfaces();
-
-const ipAddress = ifaces["Wi-Fi"].filter((item) => item.family === "IPv4")[0]
-  .address;
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC
@@ -31,10 +26,10 @@ app.get("/api/hello", function (req, res) {
 
 app.get("/api/whoami", function (req, res) {
   let me = {};
-  me["ipaddress"] = ipAddress;
+  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || null;
+  me["ipaddress"] = ip;
   me["language"] = req.headers["accept-language"];
   me["software"] = req.headers["user-agent"];
-
   res.send(me);
 });
 
